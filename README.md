@@ -155,4 +155,4 @@ Apache 2.0 — see [LICENSE](LICENSE).
 
 Impact reports are additionally licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — they may be cited, reproduced, and built upon with attribution.
 
-*Dira Africa Limited, 2025–2026.*
+*Dira Africa Limited, 2026.*
