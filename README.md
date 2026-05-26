@@ -66,7 +66,7 @@ The Dira Oracle API is a B2B data product for insurers, banks, and agricultural 
 
 **[Start here → API Quick Start](guides/api-quickstart.md)**
 
-To request API access: api@dira.africa
+To request API access: api@diraafrica.org
 
 ---
 
@@ -133,9 +133,9 @@ Before contributing, please read:
 |---|---|
 | [GitHub Issues](https://github.com/dira-africa/dira-docs/issues) | Documentation errors, missing guides, API spec questions |
 | [GitHub Discussions](https://github.com/dira-africa/dira-docs/discussions) | Questions about the API, data model, or Midnight integration |
-| api@dira.africa | API access requests and partner inquiries |
-| community@dira.africa | General inquiries |
-| conduct@dira.africa | Code of Conduct reports (private) |
+| api@diraafrica.org | API access requests and partner inquiries |
+| community@diraafrica.org | General inquiries |
+| conduct@diraafrica.org | Code of Conduct reports (private) |
 
 ---
 
