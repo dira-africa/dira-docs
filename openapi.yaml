@@ -1,0 +1,42 @@
+openapi: 3.0.3
+info:
+  title: Dira Africa API
+  version: 1.0.0
+  description: Public API and Admin operations for Dira weather sensing network.
+paths:
+  /public/xion-anchors:
+    get:
+      summary: Retrieve latest anchors from XION
+      responses:
+        '200':
+          description: List of anchors
+  /api/admin/xion-zkverify/anchor:
+    post:
+      summary: Trigger catchup anchoring
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Anchoring triggered
+  /api/admin/xion-zkverify/certificate:
+    post:
+      summary: Issue zkVerify certificate
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Certificate registered
+  /api/admin/xion-zkverify/status:
+    get:
+      summary: Get registry status
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Registry status details
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
