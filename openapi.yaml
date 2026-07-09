@@ -1,39 +1,45 @@
+# Copyright 2026 Dira Africa
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 openapi: 3.0.3
 info:
   title: Dira Africa API
   version: 1.0.0
   description: Public API and Admin operations for Dira weather sensing network.
 paths:
-  /public/xion-anchors:
+  /public/hedera-anchors:
     get:
-      summary: Retrieve latest anchors from XION
+      summary: Retrieve latest anchors from Hedera HCS
       responses:
         '200':
-          description: List of anchors
-  /api/admin/xion-zkverify/anchor:
+          description: List of HCS anchors
+  /api/admin/hedera/anchor:
     post:
-      summary: Trigger catchup anchoring
+      summary: Trigger catchup anchoring to HCS
       security:
         - bearerAuth: []
       responses:
         '200':
-          description: Anchoring triggered
-  /api/admin/xion-zkverify/certificate:
-    post:
-      summary: Issue zkVerify certificate
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Certificate registered
-  /api/admin/xion-zkverify/status:
+          description: HCS anchoring triggered
+  /api/admin/hedera/status:
     get:
-      summary: Get registry status
+      summary: Get Hedera HCS and HTS connection status
       security:
         - bearerAuth: []
       responses:
         '200':
-          description: Registry status details
+          description: Hedera integration status details
 components:
   securitySchemes:
     bearerAuth:
