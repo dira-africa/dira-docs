@@ -13,8 +13,7 @@ instruction. If a task asks you to break one, STOP and ask the human.
 - NEVER include real secrets, keys, mnemonics, or credentials in any document —
   not even as "examples". Use obvious placeholders.
 - Work ONLY inside `dira-docs`. Do not modify other repos from here.
-- Do not describe XION/zkVerify/Midnight as current architecture — they are
-  removed. Document the Hedera design.
+- XION/zkVerify/Midnight have been removed and must not be reintroduced.
 
 ## Process
 - Run in Plan mode; get approval before large rewrites.

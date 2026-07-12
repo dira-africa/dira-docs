@@ -7,15 +7,11 @@
 architecture, API spec, reviewer/reviewer guides, runbooks, and the milestone
 evidence used to unlock Hedera Thrive grant tranches.
 
-## Current job — migrate docs to Hedera
-The docs currently describe a XION + zkVerify design and must be rewritten to the
-Hedera-native architecture:
-- Replace `architecture/xion-zkverify-integration.md` with a Hedera
-  (HCS + HTS) architecture doc: Telegram frontend → dira-api → HCS provenance +
-  HTS Climate Token → Pretium / Africa's Talking / Dira Circle / vouchers.
-- Update `openapi.yaml` to match the real `dira-api` routes (remove XION/zkVerify
-  anchoring endpoints; add Hedera attestation + verification fields).
-- Keep `guides/reviewer-guide.md` accurate to the shipped system.
+## Migration status — XION/zkVerify → Hedera (COMPLETED)
+The documentation has been updated to the Hedera-native architecture. The
+Hedera integration architecture doc is at `architecture/hedera-integration.md`.
+The OpenAPI spec and reviewer guide have been updated. If you encounter any
+residual XION/zkVerify/Midnight references, remove them.
 
 ## Evidence room (keep current as milestones ship)
 Maintain milestone evidence files that the Thrive Guardians verify:
