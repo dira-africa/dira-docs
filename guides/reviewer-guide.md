@@ -18,11 +18,15 @@
 
 Dira Africa anchors weekly weather telemetry and crop health certificate data on the **Hedera Consensus Service (HCS)** to establish tamper-proof data provenance.
 
-This guide explains how independent reviewers and institutional partners can verify Dira's data integrity using a Hedera mirror node.
+Independent reviewers, insurance partners, and institutional stakeholders can verify Dira's data integrity using two methods:
+1. **Direct Verification** via public Hedera Mirror Nodes (HashScan).
+2. **B2B Verification** via the Dira Partner API.
 
 ---
 
-## The Verification Flow
+## Method 1: Direct Verification via Hedera Mirror Node
+
+This method is recommended for independent audits of historical telemetry archives.
 
 ```
 +--------------------+        1. Submit SHA-256 Hash        +--------------------+
@@ -37,38 +41,66 @@ This guide explains how independent reviewers and institutional partners can ver
 +--------------------+                                      +--------------------+
 ```
 
----
-
-## Step 1: Fetch Anchored Hash from Hedera HCS
-
-All verification hashes are published as messages to a dedicated Hedera Consensus Service (HCS) Topic. You can retrieve these messages from any public Hedera Mirror Node.
-
-### Mirror Node API Query
-Query the mirror node for messages on the Dira HCS Topic ID:
+### Step 1: Fetch Anchored Hash from HCS
+Query a public Hedera Mirror Node for messages written to the Dira HCS Topic ID (`DIRA_HCS_TOPIC_ID`):
 
 ```bash
-curl -X GET "https://mainnet-public.mirrornode.hedera.com/api/v1/topics/<HEDERA_TOPIC_ID>/messages"
+# Example for testnet topic messages
+curl -X GET "https://testnet.mirrornode.hedera.com/api/v1/topics/0.0.9556970/messages"
 ```
 
-Each message returned contains:
-- `consensus_timestamp`: The exact timestamp when Hedera reached consensus.
-- `message`: The base64-encoded payload containing the verified telemetry SHA-256 hash or Merkle root.
+Each response message contains:
+- `consensus_timestamp`: The exact consensus time.
+- `message`: The base64-encoded payload containing the verified telemetry SHA-256 batch hash.
 - `sequence_number`: The sequential message number.
 
-Decode the `message` field from base64 to obtain the hex-encoded SHA-256 hash representing the data batch.
+Decode the `message` field from base64 to obtain the hex-encoded SHA-256 hash.
+
+### Step 2: Generate the Local Data Hash
+1. Download the anonymized CSV data archive corresponding to the target week.
+2. Sort the telemetry records chronologically.
+3. Calculate the SHA-256 hash of the sorted dataset.
+
+### Step 3: Compare Hashes
+Verify that your locally calculated SHA-256 hash matches the decoded HCS message retrieved from the mirror node. An exact match guarantees the dataset has not been modified since consensus was reached.
 
 ---
 
-## Step 2: Generate the Data Hash Locally
+## Method 2: B2B API Verification (For Partners & Insurers)
 
-1. Download the raw anonymized CSV batch for the targeted consensus period from Dira's open data archive.
-2. Sort the telemetry records chronologically and calculate the SHA-256 hash (or Merkle root for larger batches) of the sorted data points.
+For automated or programmatic verification of specific readings or photo submissions, Dira provides a structured partner endpoint: `GET /api/partner/verify`.
 
----
+### 1. Verify by SHA-256 Data Hash
+If you have the SHA-256 hash of a crop certificate or telemetry point, query the API:
 
-## Step 3: Compare the Hashes
+```bash
+curl -X GET "https://api.dira.africa/api/partner/verify?hash=d5e786ef789ab3cd89a12e345f67abcd123e456789abcde0123456789abcdef0" \
+  -H "X-API-Key: YOUR_API_KEY"
+```
 
-Compare your locally computed SHA-256 hash against the decoded HCS message retrieved from the Hedera mirror node:
+### 2. Verify by HCS Topic and Sequence Number
+If you know the HCS topic and sequence number:
 
-- If they match exactly, the integrity and consensus timing of the telemetry data are verified.
-- If they differ, the local dataset has been altered or does not match the anchored state.
+```bash
+curl -X GET "https://api.dira.africa/api/partner/verify?topic=0.0.9556970&seq=42" \
+  -H "X-API-Key: YOUR_API_KEY"
+```
+
+### Example Verification Response
+A successful verification returns the consensus metadata directly verified against Hedera records:
+
+```json
+{
+  "success": true,
+  "verified": true,
+  "attestation": {
+    "consensusTimestamp": "1783886848.204061081",
+    "sequenceNumber": 42,
+    "network": "testnet",
+    "topicId": "0.0.9556970",
+    "hashscanLink": "https://hashscan.io/testnet/topic/0.0.9556970"
+  }
+}
+```
+
+*Note: All partner queries are tracked in the database usage logs and audit trails to maintain security and enforce rate limits.*

@@ -14,35 +14,285 @@
 
 openapi: 3.0.3
 info:
-  title: Dira Africa API
+  title: Dira Africa API Specification
   version: 1.0.0
-  description: Public API and Admin operations for Dira weather sensing network.
+  description: Public dashboard, partner/B2B verification, and Hedera blockchain operations for the Dira sensing network.
+servers:
+  - url: https://api.dira.africa
+    description: Production API Server
+  - url: http://localhost:3001
+    description: Local Development Server
 paths:
+  /health:
+    get:
+      summary: Health Check
+      description: Returns the system health status, version, and server timestamp.
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok"
+                  version:
+                    type: string
+                    example: "1.0.0"
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /public/stats:
+    get:
+      summary: Public Stats Dashboard
+      description: Retrieves network statistics, including verified data points, active users, counties covered, and Hedera network details.
+      responses:
+        '200':
+          description: Statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  stats:
+                    type: object
+                    properties:
+                      totalVerifiedDataPoints:
+                        type: integer
+                      activeUsers7Days:
+                        type: integer
+                      countiesCovered:
+                        type: integer
+                      cropSubmissionsMonth:
+                        type: integer
+                      tokensDisbursedKes:
+                        type: number
+                      hedera:
+                        type: object
+                        properties:
+                          topicId:
+                            type: string
+                          tokenId:
+                            type: string
+                          topicLink:
+                            type: string
+                          tokenLink:
+                            type: string
+
+  /public/coverage-map:
+    get:
+      summary: Coverage Map Data
+      description: Returns grid coordinates and density counts representing active telemetry and crop report coverage over the last 30 days.
+      responses:
+        '200':
+          description: Coverage map details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  activeCounties:
+                    type: array
+                    items:
+                      type: string
+                  grids:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        lon:
+                          type: number
+                        lat:
+                          type: number
+                        density:
+                          type: integer
+
+  /public/circular-economy-summary:
+    get:
+      summary: Circular Economy Summary
+      description: Retrieves total KES values disbursed across different reward channels (airtime, vouchers, cash pools, mobile money).
+      responses:
+        '200':
+          description: Circular economy stats
+
   /public/hedera-anchors:
     get:
-      summary: Retrieve latest anchors from Hedera HCS
+      summary: Retrieve Hedera HCS Anchors
+      description: Fetches the latest weekly batch anchors recorded on Hedera Consensus Service.
       responses:
         '200':
           description: List of HCS anchors
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  anchors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        weekNumber:
+                          type: integer
+                        batchHash:
+                          type: string
+                        hcsTxId:
+                          type: string
+                        hcsSequenceNumber:
+                          type: integer
+                        htsTxId:
+                          type: string
+                        anchoredAt:
+                          type: string
+                          format: date-time
+
+  /api/partner/verify:
+    get:
+      summary: B2B Provenance Verification
+      description: Allows insurance and research partners to verify weather telemetry or crop report provenance against on-chain Hedera Consensus Service records.
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - name: hash
+          in: query
+          description: SHA-256 hash of the telemetry batch
+          required: false
+          schema:
+            type: string
+        - name: topic
+          in: query
+          description: Hedera HCS Topic ID
+          required: false
+          schema:
+            type: string
+        - name: seq
+          in: query
+          description: HCS message sequence number
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Attestation verified successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  verified:
+                    type: boolean
+                  attestation:
+                    type: object
+                    properties:
+                      consensusTimestamp:
+                        type: string
+                      sequenceNumber:
+                        type: integer
+                      network:
+                        type: string
+                      topicId:
+                        type: string
+                      hashscanLink:
+                        type: string
+        '400':
+          description: Missing query parameters
+        '401':
+          description: Invalid or missing API key
+        '403':
+          description: Unauthorized scope (lacks 'verify_provenance')
+        '404':
+          description: Attestation record not found on Hedera
+        '429':
+          description: Rate limit exceeded
+
+  /api/payments/vouchers/redeem:
+    post:
+      summary: Issue Farm Input Voucher
+      description: Deducts a farmer's Climate Tokens and issues a signed, expiring QR voucher.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tokenAmount
+                - agroDealerId
+              properties:
+                tokenAmount:
+                  type: integer
+                  minimum: 50
+                agroDealerId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Voucher generated successfully
+
+  /api/payments/vouchers/scan:
+    post:
+      summary: Scan & Redeem Voucher (Dealer)
+      description: Allows a certified agro-dealer to scan a farmer's QR code, verify authenticity, and credit their business account while recording the 3-5% take-rate.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - qrPayload
+              properties:
+                qrPayload:
+                  type: string
+                agroDealerId:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Voucher scanned and redeemed successfully
+
   /api/admin/hedera/anchor:
     post:
-      summary: Trigger catchup anchoring to HCS
+      summary: Trigger Catchup Anchoring
+      description: Manually triggers the weekly batch anchoring pipeline to HCS for any un-anchored historical weeks.
       security:
         - bearerAuth: []
       responses:
         '200':
-          description: HCS anchoring triggered
+          description: weekly anchoring catchup completed
+
   /api/admin/hedera/status:
     get:
-      summary: Get Hedera HCS and HTS connection status
+      summary: Get Hedera Node Status
+      description: Returns internal client connectivity status for both HCS topics and HTS token properties.
       security:
         - bearerAuth: []
       responses:
         '200':
-          description: Hedera integration status details
+          description: Connection status metadata
+
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
